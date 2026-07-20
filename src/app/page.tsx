@@ -14,9 +14,7 @@ export default async function Home() {
           AI Audio Stories
         </p>
 
-        <h1 className="mb-4 text-4xl font-bold">
-          Your story library
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold">Your story library</h1>
 
         <p className="mb-10 text-zinc-400">
           Stories are being read from Supabase.
@@ -29,9 +27,10 @@ export default async function Home() {
         ) : stories && stories.length > 0 ? (
           <div className="grid gap-5 sm:grid-cols-2">
             {stories.map((story) => (
-              <article
+              <Link
                 key={story.id}
-                className="rounded-xl border border-zinc-800 bg-zinc-900 p-6"
+                href={`/stories/${story.slug}`}
+                className="block rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-emerald-400"
               >
                 <p className="mb-2 text-sm text-emerald-400">
                   {story.content_status}
@@ -44,7 +43,7 @@ export default async function Home() {
                 <p className="text-zinc-400">
                   {story.short_description ?? "No description yet."}
                 </p>
-              </article>
+              </Link>
             ))}
           </div>
         ) : (
