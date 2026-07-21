@@ -11,6 +11,48 @@ export default async function Home() {
     )
     .order("created_at", { ascending: false });
 
+  const storyIds = stories?.map((story) => story.id) ?? [];
+  let episodeRows: Array<{ story_id: string; season_number: number | null }> = [];
+
+  if (storyIds.length > 0) {
+    const { data, error: episodeError } = await supabase
+      .from("episodes")
+      .select("story_id, season_number")
+      .in("story_id", storyIds)
+      .eq("episode_status", "published");
+
+    if (episodeError) {
+      throw new Error(episodeError.message);
+    }
+
+    episodeRows = data ?? [];
+  }
+
+  const episodeCountByStory = episodeRows.reduce(
+    (counts, episode) => {
+      counts[episode.story_id] = (counts[episode.story_id] ?? 0) + 1;
+      return counts;
+    },
+    {} as Record<string, number>
+  );
+
+  const seasonNumberByStory = episodeRows.reduce(
+    (seasons, episode) => {
+      const season = episode.season_number ?? 1;
+      seasons[episode.story_id] = seasons[episode.story_id]
+        ? Math.min(seasons[episode.story_id], season)
+        : season;
+      return seasons;
+    },
+    {} as Record<string, number>
+  );
+
+  const storiesWithEpisodeCount = stories?.map((story) => ({
+    ...story,
+    episodeCount: episodeCountByStory[story.id] ?? 0,
+    seasonNumber: seasonNumberByStory[story.id] ?? 1,
+  })) ?? [];
+
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
       <div className="mx-auto max-w-6xl">
@@ -28,8 +70,8 @@ export default async function Home() {
           <p className="rounded-lg bg-red-950 p-4 text-red-300">
             Supabase error: {error.message}
           </p>
-        ) : stories && stories.length > 0 ? (
-          <StoryLibrary stories={stories} />
+        ) : storiesWithEpisodeCount && storiesWithEpisodeCount.length > 0 ? (
+          <StoryLibrary stories={storiesWithEpisodeCount} />
         ) : (
           <p className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-zinc-400">
             No stories have been added yet.

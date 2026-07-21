@@ -8,7 +8,7 @@ const LAST_SELECTED_KEY = "ai-audio-stories:lastSelectedStory";
 const PROGRESS_KEY = "ai-audio-stories:storyProgress";
 
 export type LibraryStory = {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   short_description: string | null;
@@ -16,6 +16,8 @@ export type LibraryStory = {
   cover_image_path: string | null;
   banner_image_path: string | null;
   content_status: string;
+  episodeCount: number;
+  seasonNumber: number;
   created_at: string;
 };
 
@@ -123,14 +125,7 @@ export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
   return (
     <div className="space-y-12">
       {featuredStory ? (
-        <FeaturedStoryCard
-          story={{
-            ...featuredStory,
-            episodeCount: 10,
-            seasonNumber: 1,
-          }}
-          onSelect={handleSelect}
-        />
+        <FeaturedStoryCard story={featuredStory} onSelect={handleSelect} />
       ) : null}
 
       {continueStories.length > 0 ? (

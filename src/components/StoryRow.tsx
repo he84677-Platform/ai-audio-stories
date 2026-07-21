@@ -25,7 +25,7 @@ export default function StoryRow({
   stories: RowStory[];
   onSelect?: (slug: string) => void;
 }) {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
     <section className="space-y-4">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getStorageImageUrl } from "@/lib/supabase-storage";
 
 export type FeaturedStory = {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   short_description: string | null;
