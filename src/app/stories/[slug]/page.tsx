@@ -21,7 +21,7 @@ export default async function StoryPage({ params }: Props) {
   const { data: episodes, error } = await supabase
     .from("episodes")
     .select(
-      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status"
+      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status, audio_url"
     )
     .eq("story_id", story.id)
     .eq("episode_status", "published")
@@ -91,6 +91,17 @@ export default async function StoryPage({ params }: Props) {
                       {episode.word_count ?? 0} words ·{" "}
                       {Math.round((episode.duration_seconds ?? 0) / 60)} minutes
                     </p>
+
+                    {episode.audio_url && (
+                      <audio
+                        className="mt-4 w-full"
+                        controls
+                        preload="metadata"
+                        src={episode.audio_url}
+                      >
+                        Your browser does not support the audio element.
+                      </audio>
+                    )}
                   </article>
                 ))}
               </div>
