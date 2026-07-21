@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const { data: stories, error } = await supabase
     .from("stories")
-    .select("id, slug, title, short_description, content_status")
+    .select("id, slug, title, short_description, content_status, cover_image_path")
     .order("created_at", { ascending: false });
 
   return (
