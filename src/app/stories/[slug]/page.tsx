@@ -6,10 +6,15 @@ import { getStorageImageUrl } from "@/lib/supabase-storage";
 
 type Props = {
   params: Promise<{ slug: string }>;
+  searchParams: { page?: string };
 };
 
-export default async function StoryPage({ params }: Props) {
+export default async function StoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const page = Math.max(1, Number(searchParams.page ?? 1));
+  const pageSize = 10;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   const { data: story } = await supabase
     .from("stories")
@@ -20,19 +25,23 @@ export default async function StoryPage({ params }: Props) {
 
   if (!story) notFound();
 
-  const { data: episodes, error } = await supabase
+  const { data: episodes, error, count } = await supabase
     .from("episodes")
     .select(
-      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status, audio_url, artwork_path"
+      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status, audio_url, artwork_path",
+      { count: "exact" }
     )
     .eq("story_id", story.id)
     .eq("episode_status", "published")
     .order("season_number")
-    .order("episode_number");
+    .order("episode_number")
+    .range(from, to);
 
   if (error) {
     throw new Error(error.message);
   }
+
+  const totalPages = Math.max(1, Math.ceil((count ?? episodes.length) / pageSize));
 
   const seasons = episodes.reduce(
     (groups, episode) => {
@@ -89,49 +98,51 @@ export default async function StoryPage({ params }: Props) {
                 {seasonEpisodes.map((episode) => (
                   <article
                     key={episode.id}
-                    className="grid gap-4 rounded-3xl border border-zinc-800 bg-zinc-900 p-5 sm:grid-cols-[120px_minmax(0,1fr)] sm:p-6"
+                    className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 sm:p-6"
                   >
-                    <div className="relative overflow-hidden rounded-3xl bg-zinc-950">
-                      <div className="aspect-square">
-                        <Image
-                          src={getStorageImageUrl(episode.artwork_path ?? null)}
-                          alt={episode.title}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col justify-between">
-                      <div>
-                        <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
-                          Episode {episode.episode_number}
-                        </p>
-                        <h3 className="mt-2 text-xl font-semibold text-white">
-                          {episode.title}
-                        </h3>
-                        {episode.summary && (
-                          <p className="mt-3 text-zinc-400">{episode.summary}</p>
-                        )}
+                    <div className="grid gap-4 sm:grid-cols-[320px_minmax(0,1fr)]">
+                      <div className="relative overflow-hidden rounded-3xl bg-zinc-950">
+                        <div className="aspect-[4/3] sm:aspect-[5/4]">
+                          <Image
+                            src={getStorageImageUrl(episode.artwork_path ?? null)}
+                            alt={episode.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 320px"
+                            className="object-cover"
+                          />
+                        </div>
                       </div>
 
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm text-zinc-500">
-                          {episode.word_count ?? 0} words · {Math.round((episode.duration_seconds ?? 0) / 60)} minutes
-                        </p>
-                        {episode.audio_url ? (
-                          <a
-                            href={episode.audio_url}
-                            className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
-                          >
-                            Play
-                          </a>
-                        ) : (
-                          <span className="inline-flex items-center justify-center rounded-full bg-zinc-800 px-4 py-2 text-sm font-semibold text-zinc-500">
-                            No audio
-                          </span>
-                        )}
+                      <div className="flex flex-col justify-between">
+                        <div>
+                          <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
+                            Episode {episode.episode_number}
+                          </p>
+                          <h3 className="mt-2 text-xl font-semibold text-white">
+                            {episode.title}
+                          </h3>
+                          {episode.summary && (
+                            <p className="mt-3 text-zinc-400">{episode.summary}</p>
+                          )}
+                        </div>
+
+                        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-sm text-zinc-500">
+                            {episode.word_count ?? 0} words · {Math.round((episode.duration_seconds ?? 0) / 60)} minutes
+                          </p>
+                          {episode.audio_url ? (
+                            <a
+                              href={episode.audio_url}
+                              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+                            >
+                              Play
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center justify-center rounded-full bg-zinc-800 px-4 py-2 text-sm font-semibold text-zinc-500">
+                              No audio
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </article>

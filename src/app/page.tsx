@@ -1,33 +1,35 @@
 import { supabase } from "@/lib/supabase";
-import StoriesCarousel from "@/components/StoriesCarousel";
+import StoryLibrary from "@/components/StoryLibrary";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { data: stories, error } = await supabase
     .from("stories")
-    .select("id, slug, title, short_description, content_status, cover_image_path")
+    .select(
+      "id, slug, title, short_description, description, content_status, cover_image_path, banner_image_path, created_at"
+    )
     .order("created_at", { ascending: false });
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
-      <div className="mx-auto max-w-4xl">
-        <p className="mb-3 text-sm uppercase tracking-widest text-emerald-400">
-          AI Audio Stories
-        </p>
-
-        <h1 className="mb-4 text-4xl font-bold">Your story library</h1>
-
-        <p className="mb-10 text-zinc-400">
-          Stories are being read from Supabase.
-        </p>
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 space-y-3">
+          <p className="text-sm uppercase tracking-widest text-emerald-400">
+            AI Audio Stories
+          </p>
+          <h1 className="text-4xl font-bold">Your story library</h1>
+          <p className="max-w-3xl text-zinc-400">
+            Discover cinematic audio stories, resume your listening, and explore featured titles.
+          </p>
+        </div>
 
         {error ? (
           <p className="rounded-lg bg-red-950 p-4 text-red-300">
             Supabase error: {error.message}
           </p>
         ) : stories && stories.length > 0 ? (
-          <StoriesCarousel initialStories={stories} />
+          <StoryLibrary stories={stories} />
         ) : (
           <p className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-zinc-400">
             No stories have been added yet.
