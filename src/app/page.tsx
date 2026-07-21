@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import StoriesCarousel from "@/components/StoriesCarousel";
 
 export const dynamic = "force-dynamic";
 
@@ -27,27 +27,7 @@ export default async function Home() {
             Supabase error: {error.message}
           </p>
         ) : stories && stories.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2">
-            {stories.map((story) => (
-              <Link
-                key={story.id}
-                href={`/stories/${story.slug}`}
-                className="block rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-emerald-400"
-              >
-                <p className="mb-2 text-sm text-emerald-400">
-                  {story.content_status}
-                </p>
-
-                <h2 className="mb-2 text-2xl font-semibold">
-                  {story.title}
-                </h2>
-
-                <p className="text-zinc-400">
-                  {story.short_description ?? "No description yet."}
-                </p>
-              </Link>
-            ))}
-          </div>
+          <StoriesCarousel initialStories={stories} />
         ) : (
           <p className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 text-zinc-400">
             No stories have been added yet.
