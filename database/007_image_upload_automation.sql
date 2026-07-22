@@ -15,6 +15,10 @@ alter table public.episodes
 create unique index if not exists uq_media_assets_storage_path
   on public.media_assets (storage_path) where storage_path is not null;
 
+alter table public.media_assets
+  add constraint if not exists uq_media_assets_storage_path_unique
+  unique (storage_path);
+
 create table if not exists public.storage_image_sync_errors (
   id bigint generated always as identity primary key,
   bucket_id text not null,
