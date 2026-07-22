@@ -28,6 +28,30 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Image upload automation
+
+This project includes support for syncing Supabase Storage images into the database for story cover, banner, and episode artwork.
+
+1. Apply `database/007_image_upload_automation.sql` in the Supabase SQL editor.
+2. Deploy the Edge Function at `supabase/functions/sync-storage-image/index.ts`.
+3. Configure a Supabase storage webhook on `storage.objects` for `INSERT` and `UPDATE` events.
+4. Run the one-time backfill with:
+
+```sql
+select * from public.sync_existing_story_images(
+  'story-images', 'https://YOUR_PROJECT_REF.supabase.co'
+);
+```
+
+For more details, see `database/IMAGE-UPLOAD-AUTOMATION.md`.
+
+### Supabase Edge Function environment variables
+
+Set the following environment variables for the deployed `sync-storage-image` Edge Function:
+
+- `SUPABASE_URL` — your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` — service role key used by the function
+- `SUPABASE_STORAGE_BUCKET` — optional, defaults to `story-images`
 
 ## Deploy on Vercel
 
