@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import FeaturedStoryCard, { FeaturedStory } from "@/components/FeaturedStory";
-import StoryRow, { RowStory } from "@/components/StoryRow";
+import FeaturedStoryCard from "@/components/FeaturedStory";
+import StoryRow from "@/components/StoryRow";
 
 const LAST_SELECTED_KEY = "ai-audio-stories:lastSelectedStory";
 const PROGRESS_KEY = "ai-audio-stories:storyProgress";
@@ -42,15 +42,24 @@ function saveProgressMap(progressMap: Record<string, { episode: string; percenta
 export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
   const [lastSelectedSlug, setLastSelectedSlug] = useState<string | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, { episode: string; percentage: number }>>({});
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let savedSlug: string | null = null;
+    let savedProgress: Record<string, { episode: string; percentage: number }> = {};
+
     try {
-      const saved = window.localStorage.getItem(LAST_SELECTED_KEY);
-      if (saved) setLastSelectedSlug(saved);
-      setProgressMap(getStoredProgress());
+      savedSlug = window.localStorage.getItem(LAST_SELECTED_KEY);
+      savedProgress = getStoredProgress();
     } catch {
-      // ignore
+      // ignore client-side storage errors
     }
+
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setLastSelectedSlug(savedSlug);
+    setProgressMap(savedProgress);
+    setHydrated(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const publishedStories = useMemo(
@@ -79,8 +88,8 @@ export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
     if (!continueStory) return [];
 
     const progress = progressMap[continueStory.slug] ?? {
-      episode: "Episode 4",
-      percentage: 61,
+      episode: "Episode 1",
+      percentage: 10,
     };
     return [
       {

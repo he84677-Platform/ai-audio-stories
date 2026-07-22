@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { getStorageImageUrl } from "@/lib/supabase-storage";
 
+const WEEK_AGO_MS = Date.now() - 1000 * 60 * 60 * 24 * 7;
+
 export type FeaturedStory = {
   id: string;
   slug: string;
@@ -24,9 +26,7 @@ export default function FeaturedStoryCard({
   story: FeaturedStory;
   onSelect?: (slug: string) => void;
 }) {
-  const isNewThisWeek =
-    new Date(story.created_at) >=
-    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
+  const isNewThisWeek = new Date(story.created_at).getTime() >= WEEK_AGO_MS;
 
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 text-white shadow-[0_25px_80px_rgba(0,0,0,0.35)]">

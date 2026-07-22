@@ -6,7 +6,7 @@ import { useState } from "react";
 import { getStorageImageUrl } from "@/lib/supabase-storage";
 
 export type RowStory = {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   short_description: string | null;

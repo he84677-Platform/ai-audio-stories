@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { getStorageImageUrl } from "@/lib/supabase-storage";
 
 export type Story = {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   short_description: string | null;
@@ -27,17 +27,15 @@ function reorderStories(stories: Story[], selectedSlug: string | null) {
 }
 
 export default function StoriesCarousel({ initialStories }: { initialStories: Story[] }) {
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  const carouselRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
-      const saved = window.localStorage.getItem(storageKey);
-      if (saved) setSelectedSlug(saved);
+      return window.localStorage.getItem(storageKey);
     } catch {
-      // ignore client-side storage errors
+      return null;
     }
-  }, []);
+  });
+  const carouselRef = useRef<HTMLDivElement | null>(null);
 
   const stories = useMemo(
     () => reorderStories(initialStories, selectedSlug),
