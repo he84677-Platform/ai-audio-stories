@@ -29,19 +29,8 @@ export default function FeaturedStoryCard({
   const isNewThisWeek = new Date(story.created_at).getTime() >= WEEK_AGO_MS;
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 text-white shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
-      <div className="relative h-[24rem] sm:h-[32rem]">
-        <Image
-          src={getStorageImageUrl(story.banner_image_path ?? story.cover_image_path)}
-          alt={story.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-95" />
-      </div>
-
-      <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
+    <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 text-white shadow-[0_25px_80px_rgba(0,0,0,0.35)]">
+      <div className="px-6 py-8 sm:px-10 sm:py-12">
         <div className="mb-4 flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.24em] text-emerald-400">
           <span>Featured</span>
           {isNewThisWeek && (
@@ -58,25 +47,40 @@ export default function FeaturedStoryCard({
         <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-200 sm:text-base">
           {story.short_description ?? "Explore the latest cinematic audio story."}
         </p>
+      </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Link
-            href={`/stories/${story.slug}`}
-            onClick={() => onSelect?.(story.slug)}
-            className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-8 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
-          >
-            ▶ Listen Now
-          </Link>
-          <Link
-            href={`/stories/${story.slug}`}
-            onClick={() => onSelect?.(story.slug)}
-            className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/80 px-8 py-3 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
-          >
-            ℹ View Story
-          </Link>
+      <div className="relative h-[24rem] sm:h-[32rem]">
+        <Image
+          src={getStorageImageUrl(story.banner_image_path ?? story.cover_image_path)}
+          alt={story.title}
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-75" />
+
+        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href={`/stories/${story.slug}`}
+              onClick={() => onSelect?.(story.slug)}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-8 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+            >
+              ▶ Listen Now
+            </Link>
+            <Link
+              href={`/stories/${story.slug}`}
+              onClick={() => onSelect?.(story.slug)}
+              className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/80 px-8 py-3 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
+            >
+              ℹ View Story
+            </Link>
+          </div>
         </div>
+      </div>
 
-        <p className="mt-6 text-sm text-zinc-400">
+      <div className="px-6 py-6 sm:px-10 sm:py-8">
+        <p className="text-sm text-zinc-400">
           Season {story.seasonNumber} • {story.episodeCount} Episodes
         </p>
       </div>
