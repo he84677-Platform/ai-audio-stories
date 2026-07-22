@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -93,14 +94,15 @@ export default async function WikiEntryPage({
   params,
   searchParams,
 }: {
-  params: { slug: string; entrySlug: string };
-  searchParams: SearchParams;
+  params: Promise<{ slug: string; entrySlug: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { slug, entrySlug } = params;
-  const spoilersParam = getParam(searchParams.spoilers);
+  const { slug, entrySlug } = await params;
+  const resolvedSearchParams = await searchParams;
+  const spoilersParam = getParam(resolvedSearchParams.spoilers);
   const spoilersOn = spoilersParam === "on";
-  const seasonParam = getParam(searchParams.season);
-  const episodeParam = getParam(searchParams.episode);
+  const seasonParam = getParam(resolvedSearchParams.season);
+  const episodeParam = getParam(resolvedSearchParams.episode);
   const completedSeason = spoilersOn ? null : parseNumber(seasonParam);
   const completedEpisode = spoilersOn ? null : parseNumber(episodeParam);
 
@@ -112,13 +114,69 @@ export default async function WikiEntryPage({
     p_include_spoilers: spoilersOn,
   });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
+  const rpcError = error?.message ?? null;
   const wiki = data as WikiResponse | null;
-  if (!wiki?.story) {
-    notFound();
+
+  if (rpcError || !wiki?.story) {
+    const { data: story, error: storyError } = await supabase
+      .from("stories")
+      .select("slug, title, short_description, banner_image_path")
+      .eq("slug", slug)
+      .eq("content_status", "published")
+      .single();
+
+    if (!story || storyError) {
+      notFound();
+    }
+
+    return (
+      <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
+        <div className="mx-auto max-w-4xl space-y-6 rounded-[2rem] border border-zinc-800 bg-zinc-900 p-8 sm:p-12">
+          <div className="space-y-4">
+            <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
+              Story wiki unavailable
+            </p>
+            <h1 className="text-4xl font-bold text-white">
+              {story.title}
+            </h1>
+            <p className="text-zinc-300">{story.short_description}</p>
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
+              <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
+                Unable to load wiki entry
+              </p>
+              <p className="mt-3 text-sm text-zinc-400">
+                The public wiki function is not available in this database. You can still view the story details below.
+              </p>
+              {rpcError ? (
+                <pre className="mt-4 overflow-x-auto rounded-3xl bg-zinc-900 p-4 text-xs text-rose-300">
+                  {rpcError}
+                </pre>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Link
+              href={`/stories/${story.slug}`}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+            >
+              Back to story
+            </Link>
+            {story.banner_image_path ? (
+              <div className="relative h-72 w-full overflow-hidden rounded-[2rem] bg-zinc-950 sm:w-80">
+                <Image
+                  src={getStorageImageUrl(story.banner_image_path)}
+                  alt={story.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 320px"
+                  className="object-cover"
+                />
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </main>
+    );
   }
 
   const queryString = buildQuery(spoilersOn, seasonParam ?? null, episodeParam ?? null);
