@@ -1,8 +1,12 @@
+// @ts-nocheck
+// This file is a Deno/Supabase Edge Function and should not be type-checked
+// by the Next.js/VS Code TypeScript project.
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const url = Deno.env.get("SUPABASE_URL")!;
+const url = Deno.env.get("SUPABASE_URL");
 const bucket = Deno.env.get("SUPABASE_STORAGE_BUCKET") ?? "story-images";
-const db = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+const db = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"));
 
 Deno.serve(async (request) => {
   try {

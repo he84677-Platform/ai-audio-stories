@@ -46,7 +46,7 @@ export default function StoryRow({
               onClick={() => onSelect?.(story.slug)}
               onMouseEnter={() => setHoveredId(story.id)}
               onMouseLeave={() => setHoveredId(null)}
-              className="group relative min-w-[18rem] max-w-[21.25rem] flex-shrink-0 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 transition hover:border-emerald-400"
+              className="group relative min-w-[18rem] max-w-[21.25rem] flex-shrink-0 h-full overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 transition hover:border-emerald-400"
             >
               <div className="relative aspect-[3/2] overflow-hidden bg-zinc-950">
                 <Image
@@ -58,7 +58,7 @@ export default function StoryRow({
                 />
               </div>
 
-              <div className="space-y-4 p-5">
+              <div className="flex h-full flex-col justify-between space-y-4 p-5">
                 <div className="space-y-2">
                   <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
                     {story.content_status}
@@ -93,11 +93,15 @@ export default function StoryRow({
 
                 {hoveredId === story.id ? (
                   <div className="space-y-2 rounded-3xl border border-emerald-400/20 bg-zinc-950/95 p-4 text-sm text-zinc-300">
-                    <p className="font-semibold text-white">Upcoming preview</p>
-                    <p>Season 1</p>
-                    <p>Episode 1 — Above the Bracken Ring</p>
-                    <p>Episode 2 — Dead Sector</p>
-                    <p>Episode 3 — The Long Night</p>
+                    <p className="font-semibold text-white">
+                      {story.last_listened_episode ? "Continue Listening" : "Story preview"}
+                    </p>
+                    <p>{story.short_description ?? "Discover this story."}</p>
+                    {story.last_listened_episode ? (
+                      <p className="text-xs text-zinc-500">
+                        Resume at {story.last_listened_episode} • {story.percentage_complete}% complete
+                      </p>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="flex items-center justify-between pt-4">
