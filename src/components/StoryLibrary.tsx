@@ -137,11 +137,17 @@ export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
         <FeaturedStoryCard story={featuredStory} onSelect={handleSelect} />
       ) : null}
 
-      {continueStories.length > 0 ? (
-        <StoryRow title="Continue Listening" stories={continueStories} onSelect={handleSelect} />
-      ) : null}
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+        {continueStories.length > 0 ? (
+          <div className="lg:sticky lg:top-24">
+            <StoryRow title="Continue Listening" stories={continueStories} onSelect={handleSelect} />
+          </div>
+        ) : null}
 
-      <StoryRow title="Newest Stories" stories={newestStories} onSelect={handleSelect} />
+        <div className={continueStories.length > 0 ? "" : "lg:col-span-2"}>
+          <StoryRow title="Newest Stories" stories={newestStories} onSelect={handleSelect} />
+        </div>
+      </div>
 
       <StoryRow title="Coming Soon" stories={comingSoonStories} onSelect={handleSelect} />
     </div>
