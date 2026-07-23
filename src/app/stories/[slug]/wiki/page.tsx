@@ -1,7 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { getStorageImageUrl } from "@/lib/supabase-storage";
 
 type SearchParams = {
   spoilers?: string | string[];
@@ -151,10 +151,11 @@ export default async function StoryWikiIndex({
             </Link>
             {story.banner_image_path ? (
               <div className="relative h-72 w-full overflow-hidden rounded-[2rem] bg-zinc-950 sm:w-80">
-                <img
-                  src={`/images/story-placeholder.png`}
+                <Image
+                  src="/images/story-placeholder.png"
                   alt={story.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             ) : null}

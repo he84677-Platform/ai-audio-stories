@@ -14,7 +14,7 @@ export type Story = {
   content_status: string;
 };
 
-const storageKey = "ai-audio-stories:lastSelectedStory";
+const storageKey = "discover-stories:lastSelectedStory";
 
 function reorderStories(stories: Story[], selectedSlug: string | null) {
   if (!selectedSlug) return stories;
@@ -63,8 +63,7 @@ export default function StoriesCarousel({ initialStories }: { initialStories: St
   return (
     <div>
       <div className="mb-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-5 text-sm text-zinc-400">
-        <p className="mb-1 text-emerald-400">Swipe or scroll horizontally</p>
-        <p>Last selected story is pinned first in the carousel.</p>
+          <p className="mb-1 text-emerald-400">Discover Stories</p>
       </div>
 
       <div className="relative">

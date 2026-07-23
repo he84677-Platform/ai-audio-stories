@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 // This file is a Deno/Supabase Edge Function and should not be type-checked
 // by the Next.js/VS Code TypeScript project.

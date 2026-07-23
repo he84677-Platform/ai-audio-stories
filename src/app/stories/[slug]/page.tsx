@@ -25,11 +25,10 @@ export default async function StoryPage({ params, searchParams }: Props) {
 
   if (!story) notFound();
 
-  const { data: episodes, error, count } = await supabase
+  const { data: episodes, error } = await supabase
     .from("episodes")
     .select(
-      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status, audio_url, artwork_path",
-      { count: "exact" }
+      "id, season_number, episode_number, title, summary, word_count, duration_seconds, episode_status, audio_url, artwork_path"
     )
     .eq("story_id", story.id)
     .eq("episode_status", "published")
@@ -50,7 +49,6 @@ export default async function StoryPage({ params, searchParams }: Props) {
   }
 
   const wikiEnabled = Boolean(hasWiki);
-  const totalPages = Math.max(1, Math.ceil((count ?? episodes.length) / pageSize));
 
   const seasons = episodes.reduce(
     (groups, episode) => {
@@ -85,7 +83,7 @@ export default async function StoryPage({ params, searchParams }: Props) {
 
           <div className="space-y-6 p-6 sm:p-10">
             <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">
-              AI Audio Stories
+              Discover Stories
             </p>
 
             <h1 className="text-4xl font-bold text-white">{story.title}</h1>

@@ -58,11 +58,11 @@ export default async function Home() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 space-y-3">
           <p className="text-sm uppercase tracking-widest text-emerald-400">
-            AI Audio Stories
+            Discover Stories
           </p>
-          <h1 className="text-4xl font-bold">Your story library</h1>
+          <h1 className="text-4xl font-bold">Discover your next story</h1>
           <p className="max-w-3xl text-zinc-400">
-            Discover cinematic audio stories, resume your listening, and explore featured titles.
+            Browse cinematic audio stories, resume your listening, and explore featured titles.
           </p>
         </div>
 

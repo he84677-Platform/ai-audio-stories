@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import FeaturedStoryCard from "@/components/FeaturedStory";
 import StoryRow from "@/components/StoryRow";
 
-const LAST_SELECTED_KEY = "ai-audio-stories:lastSelectedStory";
-const PROGRESS_KEY = "ai-audio-stories:storyProgress";
+const LAST_SELECTED_KEY = "discover-stories:lastSelectedStory";
+const PROGRESS_KEY = "discover-stories:storyProgress";
 
 export type LibraryStory = {
   id: string;
@@ -42,7 +42,6 @@ function saveProgressMap(progressMap: Record<string, { episode: string; percenta
 export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
   const [lastSelectedSlug, setLastSelectedSlug] = useState<string | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, { episode: string; percentage: number }>>({});
-  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     let savedSlug: string | null = null;
@@ -58,7 +57,6 @@ export default function StoryLibrary({ stories }: { stories: LibraryStory[] }) {
     /* eslint-disable react-hooks/set-state-in-effect */
     setLastSelectedSlug(savedSlug);
     setProgressMap(savedProgress);
-    setHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 

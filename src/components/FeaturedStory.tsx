@@ -40,7 +40,7 @@ export default function FeaturedStoryCard({
           )}
         </div>
 
-        <h1 className="max-w-3xl text-5xl font-bold leading-tight text-white sm:text-6xl">
+        <h1 className="max-w-full truncate text-4xl font-bold leading-tight text-white sm:text-5xl">
           {story.title}
         </h1>
 
