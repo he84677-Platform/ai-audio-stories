@@ -51,11 +51,13 @@ export default async function EpisodeReadPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <div className="flex flex-col gap-4 rounded-[2rem] border border-zinc-800 bg-zinc-900 p-8 sm:p-12">
-          <div className="flex flex-col gap-3">
-            <p className="text-sm uppercase tracking-[0.24em] text-emerald-400">Read episode</p>
-            <h1 className="text-3xl font-bold text-white">{story.title}</h1>
+      <div className="mx-auto flex max-w-4xl flex-col gap-8 overflow-hidden">
+        <div className="flex flex-col gap-4 rounded-[2rem] border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs uppercase tracking-[0.24em] text-emerald-400">Read episode</p>
+            <h1 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+              {story.title}
+            </h1>
             <p className="text-sm text-zinc-500">
               Episode {episode.episode_number}: {episode.title}
             </p>
@@ -64,14 +66,14 @@ export default async function EpisodeReadPage({ params }: Props) {
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/stories/${story.slug}`}
-              className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/90 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
+              className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/90 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
             >
               Back to story
             </Link>
             {episode.audio_url ? (
               <a
                 href={episode.audio_url}
-                className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
               >
                 Play audio
               </a>
@@ -79,7 +81,7 @@ export default async function EpisodeReadPage({ params }: Props) {
             {nextEpisodeNumber ? (
               <Link
                 href={`/stories/${story.slug}/episodes/${nextEpisodeNumber}`}
-                className="inline-flex items-center justify-center rounded-full border border-emerald-400 bg-emerald-500/10 px-5 py-3 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10"
+                className="inline-flex items-center justify-center rounded-full border border-emerald-400 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10"
               >
                 Next episode
               </Link>
@@ -87,14 +89,15 @@ export default async function EpisodeReadPage({ params }: Props) {
           </div>
         </div>
 
-        <article className="rounded-[2rem] border border-zinc-800 bg-zinc-900 p-8 sm:p-12">
-          <div className="prose prose-invert max-w-none space-y-6 text-zinc-200">
-            <p className="text-sm uppercase tracking-[0.22em] text-emerald-400">Episode content</p>
-            <div className="whitespace-pre-wrap text-base leading-7">
-              {content}
+        <div className="flex flex-col overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900">
+          <article className="max-h-[calc(100vh-15rem)] overflow-y-auto p-6 sm:p-8">
+            <div className="prose prose-invert max-w-none space-y-6 text-zinc-200">
+              <div className="whitespace-pre-wrap text-base leading-7">
+                {content}
+              </div>
             </div>
-          </div>
-        </article>
+          </article>
+        </div>
       </div>
     </main>
   );
