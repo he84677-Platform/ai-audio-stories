@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import TextReaderButton from "@/components/TextReaderButton";
+import QuickPlayPlayer from "@/components/QuickPlay/QuickPlayPlayer";
 
 type Props = {
   params: Promise<{ slug: string; episodeNumber: string }>;
@@ -50,6 +51,32 @@ export default async function EpisodeReadPage({ params }: Props) {
   const nextEpisodeNumber = nextEpisode?.episode_number ?? null;
   const content = episode.script_text?.trim() || episode.summary || "No readable content is available for this episode.";
 
+  // Load quick-play voice pack for this story (server-side)
+  const { data: storyVoices } = await supabase
+    .from("story_quick_play_voices")
+    .select("id, voice_profile_id, display_name, description, is_default, display_order")
+    .eq("story_slug", slug)
+    .order("display_order", { ascending: true });
+
+  let voiceProfiles = null;
+  let voiceRules = null;
+  if (storyVoices && storyVoices.length > 0) {
+    const profileIds = (storyVoices as { voice_profile_id: string }[]).map((v) => v.voice_profile_id);
+    const { data: vp } = await supabase
+      .from("voice_profiles")
+      .select("id, name, speech_rate, speech_pitch, language_code")
+      .in("id", profileIds);
+
+    const { data: vr } = await supabase
+      .from("voice_profile_rules")
+      .select("id, voice_profile_id, priority, voice_name_contains, provider_contains, language_code, local_only")
+      .in("voice_profile_id", profileIds)
+      .order("priority", { ascending: true });
+
+    voiceProfiles = vp ?? [];
+    voiceRules = vr ?? [];
+  }
+
   return (
     <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
       <div className="mx-auto flex max-w-4xl flex-col gap-8 overflow-hidden">
@@ -72,6 +99,15 @@ export default async function EpisodeReadPage({ params }: Props) {
               Back to story
             </Link>
             <TextReaderButton text={content} />
+            {storyVoices && storyVoices.length > 0 ? (
+              <QuickPlayPlayer
+                storySlug={story.slug}
+                text={content}
+                profiles={storyVoices}
+                voiceProfiles={voiceProfiles ?? []}
+                rules={voiceRules ?? []}
+              />
+            ) : null}
             {episode.audio_url ? (
               <a
                 href={episode.audio_url}
