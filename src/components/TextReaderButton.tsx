@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 export default function TextReaderButton({ text }: { text: string }) {
   const [isReading, setIsReading] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const canSpeak = useMemo(() => {
-    return typeof window !== "undefined" && "speechSynthesis" in window;
-  }, []);
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
+
+  const canSpeak = isClient && typeof window !== "undefined" && "speechSynthesis" in window;
 
   useEffect(() => {
     return () => {
@@ -38,6 +42,7 @@ export default function TextReaderButton({ text }: { text: string }) {
   const stopReading = () => {
     if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
+      utteranceRef.current = null;
       setIsReading(false);
     }
   };
