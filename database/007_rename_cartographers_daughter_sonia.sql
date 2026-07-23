@@ -1,4 +1,4 @@
--- The Cartographer's Daughter + Microsoft Azure Sonia narrator
+-- The Cartographer's Dream + Microsoft Azure Sonia narrator
 -- Safe migration for the existing story:
 --   current slug: the-cartographers-dream
 --   current story id: 2acd5b3f-9ec5-4699-93cb-8d7ab16edce2
@@ -22,10 +22,10 @@ begin
     raise exception 'The Cartographer''s Dream story was not found';
   end if;
 
-  -- Update the public title and URL slug. Episodes remain linked by story_id.
+    -- Update the public title and URL slug. Episodes remain linked by story_id.
   update public.stories
-  set title = 'The Cartographer''s Daughter',
-      slug = 'the-cartographers-daughter',
+    set title = 'The Cartographer''s Dream',
+      slug = 'the-cartographers-dream',
       updated_at = now()
   where id = v_story_id;
 
@@ -59,7 +59,7 @@ begin
     'azure',
     'en-GB-SoniaNeural',
     'en-GB',
-    'Gentle and soft British female narrator for The Cartographer''s Daughter.',
+    'Gentle and soft British female narrator for The Cartographer''s Dream.',
     true,
     now()
   )
@@ -72,7 +72,7 @@ begin
       enabled = excluded.enabled,
       updated_at = now();
 
-  raise notice 'Updated story % to The Cartographer''s Daughter with Azure voice %',
+  raise notice 'Updated story % to The Cartographer''s Dream with Azure voice %',
     v_story_id, 'en-GB-SoniaNeural';
 end;
 $migration$;
@@ -82,15 +82,15 @@ commit;
 -- Verification
 select id, slug, title
 from public.stories
-where slug = 'the-cartographers-daughter';
+where slug = 'the-cartographers-dream';
 
 select s.slug, s.title, v.narrator_display_name, v.speech_provider,
        v.provider_voice_id, v.locale, v.enabled
 from public.story_audio_voice_settings v
 join public.stories s on s.id = v.story_id
-where s.slug = 'the-cartographers-daughter';
+where s.slug = 'the-cartographers-dream';
 
 select count(*) as linked_episode_count
 from public.episodes e
 join public.stories s on s.id = e.story_id
-where s.slug = 'the-cartographers-daughter';
+where s.slug = 'the-cartographers-dream';

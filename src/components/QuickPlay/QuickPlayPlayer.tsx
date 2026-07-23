@@ -93,8 +93,13 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
 
   function parseSpeakerSegments(input: string) {
     // returns ordered segments with speakerTag (uppercased) or null
+    // only recognized tags change speaker; unrecognized tags are stripped
     const segments: { speakerTag: string | null; text: string }[] = [];
     const re = /\[([A-Za-z0-9_ -]+)\]\s*/g;
+    const recognizedTags = new Set([
+      "NARRATOR",
+      ...speakerVoices.map((voice) => voice.speaker_tag?.toUpperCase()).filter(Boolean),
+    ]);
     let lastIndex = 0;
     let match: RegExpExecArray | null;
     let currentSpeaker: string | null = null;
@@ -103,7 +108,10 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
       if (before.trim()) {
         segments.push({ speakerTag: currentSpeaker, text: before });
       }
-      currentSpeaker = match[1].toUpperCase();
+      const matchedTag = match[1].toUpperCase();
+      if (recognizedTags.has(matchedTag)) {
+        currentSpeaker = matchedTag;
+      }
       lastIndex = match.index + match[0].length;
     }
     const rest = input.slice(lastIndex);
