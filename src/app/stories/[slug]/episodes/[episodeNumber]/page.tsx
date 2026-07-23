@@ -68,7 +68,10 @@ export default async function EpisodeReadPage({ params }: Props) {
   let voiceProfiles = null;
   let voiceRules = null;
   if (storyVoices && storyVoices.length > 0) {
-    const profileIds = (storyVoices as { voice_profile_id: string }[]).map((v) => v.voice_profile_id);
+    const narratorProfileIds = (storyVoices as { voice_profile_id: string }[]).map((v) => v.voice_profile_id);
+    const speakerProfileIds = (speakerVoices as { voice_profile_id: string }[] | null)?.map((v) => v.voice_profile_id) ?? [];
+    const profileIds = [...new Set([...narratorProfileIds, ...speakerProfileIds])];
+
     const { data: vp } = await supabase
       .from("voice_profiles")
       .select("id, name, speech_rate, speech_pitch, language_code")
