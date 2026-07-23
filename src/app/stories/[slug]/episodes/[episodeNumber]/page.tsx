@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import TextReaderButton from "@/components/TextReaderButton";
 
 type Props = {
   params: Promise<{ slug: string; episodeNumber: string }>;
@@ -70,6 +71,7 @@ export default async function EpisodeReadPage({ params }: Props) {
             >
               Back to story
             </Link>
+            <TextReaderButton text={content} />
             {episode.audio_url ? (
               <a
                 href={episode.audio_url}

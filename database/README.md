@@ -14,4 +14,5 @@ This folder contains SQL migrations, seed data, and automation scripts used by t
 - `006_public_wiki_api (1).sql` - Public wiki API and RPC helpers.
 - `007_image_upload_automation.sql` - Image upload automation schema for Supabase storage/webhook sync.
 - `007_seed_ash_and_silver.sql` - New seed script for the "Ash and Silver" story and its Season 1 episodes.
+- `008_add_ash_and_silver_full_episodes.sql` - Adds complete Season 1 prose drafts and updates episode script_text and word_count for Ash and Silver.
 - `IMAGE-UPLOAD-AUTOMATION.md` - Instructions for the Supabase image upload automation workflow.
