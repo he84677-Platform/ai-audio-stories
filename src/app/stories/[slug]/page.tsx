@@ -152,18 +152,26 @@ export default async function StoryPage({ params, searchParams }: Props) {
                           <p className="text-sm text-zinc-500">
                             {episode.word_count ?? 0} words · {Math.round((episode.duration_seconds ?? 0) / 60)} minutes
                           </p>
-                          {episode.audio_url ? (
-                            <a
-                              href={episode.audio_url}
-                              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+                          <div className="flex flex-wrap gap-3">
+                            {episode.audio_url ? (
+                              <a
+                                href={episode.audio_url}
+                                className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
+                              >
+                                Play
+                              </a>
+                            ) : (
+                              <span className="inline-flex items-center justify-center rounded-full bg-zinc-800 px-4 py-2 text-sm font-semibold text-zinc-500">
+                                No audio
+                              </span>
+                            )}
+                            <Link
+                              href={`/stories/${story.slug}/episodes/${episode.episode_number}`}
+                              className="inline-flex items-center justify-center rounded-full border border-zinc-700 bg-zinc-950/90 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
                             >
-                              Play
-                            </a>
-                          ) : (
-                            <span className="inline-flex items-center justify-center rounded-full bg-zinc-800 px-4 py-2 text-sm font-semibold text-zinc-500">
-                              No audio
-                            </span>
-                          )}
+                              Read
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
