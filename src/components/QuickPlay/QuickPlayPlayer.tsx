@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import VoiceSelector from "./VoiceSelector";
 import { matchBrowserVoice } from "./voiceMatcher";
-import type { StoryQuickVoice, VoiceProfile, VoiceProfileRule } from "./types";
+import type { StoryQuickVoice, VoiceProfile, VoiceProfileRule, StorySpeakerVoice } from "./types";
 
 type Props = {
   storySlug: string;
@@ -10,6 +10,7 @@ type Props = {
   profiles: StoryQuickVoice[];
   voiceProfiles: VoiceProfile[];
   rules: VoiceProfileRule[];
+  speakerVoices: StorySpeakerVoice[];
 };
 
 const LS_KEY = (slug: string) => `discover-stories:quick-play:${slug}`;
@@ -18,7 +19,7 @@ function stripHtml(s: string) {
   return s.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 }
 
-export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfiles, rules }: Props) {
+export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfiles, rules, speakerVoices }: Props) {
   const supported = typeof window !== "undefined" && "speechSynthesis" in window;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,7 +27,7 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [speed, setSpeed] = useState<number>(1);
   const chunkIndexRef = useRef(0);
-  const chunksRef = useRef<string[]>([]);
+  const chunksRef = useRef<{ text: string; speakerTag: string | null }[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -82,29 +83,51 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
     }
   }, [selectedProfileId, speed, storySlug]);
 
-  function buildChunks(textIn: string) {
-    const cleaned = stripHtml(textIn);
-    const paras = cleaned.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-    const chunks: string[] = [];
-    for (const p of paras) {
-      if (p.length < 2000) {
-        chunks.push(p);
-      } else {
-        // split long paragraphs into sentences
-        const s = p.match(/[^.!?]+[.!?]?/g) || [p];
-        let buf = "";
-        for (const sent of s) {
-          if ((buf + " " + sent).length > 2000) {
-            chunks.push(buf.trim());
-            buf = sent;
-          } else {
-            buf = (buf + " " + sent).trim();
+  function parseSpeakerSegments(input: string) {
+    // returns ordered segments with speakerTag (uppercased) or null
+    const segments: { speakerTag: string | null; text: string }[] = [];
+    const re = /\[([A-Za-z0-9_ -]+)\]\s*/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let currentSpeaker: string | null = null;
+    while ((match = re.exec(input)) !== null) {
+      const before = input.slice(lastIndex, match.index);
+      if (before.trim()) {
+        segments.push({ speakerTag: currentSpeaker, text: before });
+      }
+      currentSpeaker = match[1].toUpperCase();
+      lastIndex = match.index + match[0].length;
+    }
+    const rest = input.slice(lastIndex);
+    if (rest.trim()) segments.push({ speakerTag: currentSpeaker, text: rest });
+    return segments;
+  }
+
+  function buildChunksFromSegments(input: string) {
+    const cleaned = stripHtml(input);
+    const segments = parseSpeakerSegments(cleaned);
+    const out: { text: string; speakerTag: string | null }[] = [];
+    for (const seg of segments) {
+      const paras = seg.text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+      for (const p of paras) {
+        if (p.length < 2000) {
+          out.push({ text: p, speakerTag: seg.speakerTag });
+        } else {
+          const s = p.match(/[^.!?]+[.!?]?/g) || [p];
+          let buf = "";
+          for (const sent of s) {
+            if ((buf + " " + sent).length > 2000) {
+              out.push({ text: buf.trim(), speakerTag: seg.speakerTag });
+              buf = sent;
+            } else {
+              buf = (buf + " " + sent).trim();
+            }
           }
+          if (buf) out.push({ text: buf.trim(), speakerTag: seg.speakerTag });
         }
-        if (buf) chunks.push(buf.trim());
       }
     }
-    return chunks;
+    return out;
   }
 
   function stopSpeech() {
@@ -133,7 +156,7 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
   function playSpeech() {
     if (!supported) return;
     stopSpeech();
-    const chunks = buildChunks(text || "");
+    const chunks = buildChunksFromSegments(text || "");
     if (chunks.length === 0) return;
     chunksRef.current = chunks;
     chunkIndexRef.current = 0;
@@ -151,10 +174,24 @@ export default function QuickPlayPlayer({ storySlug, text, profiles, voiceProfil
     }
 
     const chunk = chunks[idx];
-    const utter = new SpeechSynthesisUtterance(chunk);
+    const utter = new SpeechSynthesisUtterance(chunk.text);
 
-    const profileEntry = profiles.find((p) => p.id === selectedProfileId);
-    const profile = voiceProfiles.find((vp) => vp.id === profileEntry?.voice_profile_id) ?? null;
+    // determine profile for this chunk: speaker mapping -> voice_profile_id -> voice profile
+    let profile: VoiceProfile | null = null;
+
+    let useVoiceProfileId: string | null = null;
+    if (chunk.speakerTag) {
+      const sv = speakerVoices.find((s) => s.speaker_tag?.toUpperCase() === chunk.speakerTag?.toUpperCase());
+      if (sv) useVoiceProfileId = sv.voice_profile_id;
+    }
+
+    if (!useVoiceProfileId) {
+      const selectedProfileEntry = profiles.find((p) => p.id === selectedProfileId);
+      if (selectedProfileEntry) useVoiceProfileId = selectedProfileEntry.voice_profile_id;
+    }
+
+    const profileFound = voiceProfiles.find((vp) => vp.id === useVoiceProfileId) ?? null;
+    profile = profileFound;
 
     try {
       const matched = matchBrowserVoice(voices, profile ?? ({} as VoiceProfile), rules.filter((r) => r.voice_profile_id === profile?.id));

@@ -7,6 +7,13 @@ export type StoryQuickVoice = {
   display_order?: number;
 };
 
+export type StorySpeakerVoice = {
+  id: string;
+  story_id?: string | number;
+  speaker_tag: string;
+  voice_profile_id: string;
+};
+
 export type VoiceProfileRule = {
   id: string;
   voice_profile_id: string;

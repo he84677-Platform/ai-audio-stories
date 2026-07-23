@@ -58,6 +58,13 @@ export default async function EpisodeReadPage({ params }: Props) {
     .eq("story_slug", slug)
     .order("display_order", { ascending: true });
 
+  // Load speaker -> voice mapping for this story (server-side)
+  const { data: speakerVoices } = await supabase
+    .from("story_speaker_voices")
+    .select("id, story_id, speaker_tag, voice_profile_id")
+    .eq("story_id", story.id)
+    .order("id", { ascending: true });
+
   let voiceProfiles = null;
   let voiceRules = null;
   if (storyVoices && storyVoices.length > 0) {
@@ -106,6 +113,7 @@ export default async function EpisodeReadPage({ params }: Props) {
                 profiles={storyVoices}
                 voiceProfiles={voiceProfiles ?? []}
                 rules={voiceRules ?? []}
+                speakerVoices={speakerVoices ?? []}
               />
             ) : null}
             {episode.audio_url ? (
